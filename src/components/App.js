@@ -1,31 +1,59 @@
+// @flow
 import React, { Component } from "react"
-import { Image, Text, View, Button, Picker } from "react-native"
-
+import { Image, Text, View, Button, Picker, TextInput } from "react-native"
 import { initStore } from 'react-stateful'
 
-const store = {
-  initialState: { count: 0, title: 'hello' },
+type Post = {
+  title: string, 
+  desc: string, 
+  date: string, 
+  authors: string, 
+  upvotes: number, 
+  podcast: string,
+  id: string // Id object 
+}
+
+type Store = {
+  initialState: {
+    posts: Array<mixed>, 
+  }, 
   actions: {
-    increment: ({ count }) => ({ count: count + 1 }),
+    createPost: () => void, 
+  }, 
+}
+
+const store: Store = {
+  initialState: { 
+    posts: [], 
+  },
+  actions: {
+    createPost: ({ posts }) => ({ posts: [{ title: 'hello', upvote: 0, }, ...posts ]}), 
+    getPostByID: (id: string, { posts }) => (posts.filter(post => post.id === id)), 
+    onUpvote: (id: string) => (
+      let post: Post = getPostByID(id) 
+    )
   },
 }
 
-const { Provider, connect } = initStore(store)
+const { Provider, connect, Consumer, actions, subscribe } = initStore(store)
+subscribe((action, state) => console.log(action, state))
 
 let Count = ({ state, actions }) => (
   <View>
-    <Text>{state.count}</Text>
-    <Button onPress={actions.increment} title={state.title}/>
+    <Text>yooo</Text>
+    <View>
+    {state.posts.map((item, index) => <Text key={index}>{item.title}</Text>)}
+    </View>
+
+    <Button title="yoooo" onPress={actions.createPost} />
   </View>
 )
-
-Count = connect(['count', 'title'])(Count)
+Count = connect(['posts'])(Count)
 
 class App extends Component {
   render() {
     return (
       <View>
-        <Text>How are you</Text>
         <Provider>
           <Count />
         </Provider>
